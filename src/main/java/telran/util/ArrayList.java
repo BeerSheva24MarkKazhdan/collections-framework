@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.function.Predicate;
 
 public class ArrayList<T> implements List<T> {
     private static final int DEFAULT_CAPACITY = 16;
@@ -76,20 +77,15 @@ public class ArrayList<T> implements List<T> {
         size++;
     }
 
-    private void checkIndex(int index, boolean sizeInclusive) {
-        int limit = sizeInclusive ? size : size - 1;
-        if (index < 0 || index > limit) {
-            throw new IndexOutOfBoundsException(index);
-        }
-    }
-
     @SuppressWarnings("unchecked")
     @Override
     public T remove(int index) {
         checkIndex(index, false);
-        T removedElement = (T) array[index];
+        T res = (T) array[index];
+        size--;
         System.arraycopy(array, index + 1, array, index, size - index);
-        return removedElement;
+        array[size] = null;
+        return res;
     }
 
     @SuppressWarnings("unchecked")
@@ -117,11 +113,36 @@ public class ArrayList<T> implements List<T> {
         return index;
     }
 
+    @Override
+    public boolean removeIf(Predicate<T> predicate) {
+        boolean removed = false;
+        int i = 0;
+        int j = 0;
+
+        while (i < size){
+            @SuppressWarnings("unchecked")
+            T element = (T) array[i];
+            if (!predicate.test(element)){
+                array[j++] = array [i];
+            } else {
+                removed = true;
+            }
+            i++;
+        }
+       for (int k = j; k < size; k++){
+        array[k] = null;
+       }
+        size = j;
+        return removed;
+    }
+
     private class ArrayListIterator implements Iterator<T> {
         int currentIndex = 0;
+        private boolean flNext = false;
 
         @Override
         public boolean hasNext() {
+            flNext = true;
             return currentIndex < size;
         }
 
@@ -132,6 +153,15 @@ public class ArrayList<T> implements List<T> {
                 throw new NoSuchElementException();
             }
             return (T) array[currentIndex++];
+        }
+
+        @Override
+        public void remove() {
+            if (!flNext) {
+                throw new IllegalStateException();
+            }
+            ArrayList.this.remove(--currentIndex);
+            flNext = false;
         }
 
     }
