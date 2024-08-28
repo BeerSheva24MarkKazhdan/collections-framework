@@ -18,7 +18,6 @@ public class LinkedList<T> implements List<T> {
     private class LinkedListIterator implements Iterator<T> {
         Node<T> currentNode = head;
         Node<T> previousNode = null;
-        Node<T> lastNode = null;
 
         @Override
         public boolean hasNext() {
@@ -30,23 +29,20 @@ public class LinkedList<T> implements List<T> {
             if (!hasNext()) {
                 throw new NoSuchElementException();
             }
-            lastNode = currentNode;
+            T res = currentNode.obj;
             previousNode = currentNode;
             currentNode = currentNode.next;
-            return lastNode.obj;
+            return res;
         }
+
         @Override
         public void remove(){
-            if (lastNode == null) {
-                throw new IllegalStateException();
+            if(previousNode == null) {
+             throw new IllegalStateException();
             }
-            if (lastNode == head){
-                head = currentNode;
-            } else {
-                previousNode.next = currentNode;
-            }
-            lastNode = null;
-        }
+            removeNode(previousNode);
+            previousNode = null;
+         }
 
     }
 
@@ -223,12 +219,12 @@ public class LinkedList<T> implements List<T> {
 
     @Override
     public int lastIndexOf(T pattern) {
-        Node<T> currentNode = tail;
-        int i = size - 1;
-        while (currentNode != null && !Objects.equals(currentNode.obj, pattern)) {
-            currentNode = currentNode.prev;
-            i--;
+        int index = size - 1;
+        Node<T> current = tail;
+        while(current != null && !Objects.equals(current.obj, pattern)){
+            current = current.prev;
+            index--;
         }
-        return currentNode == null ? -1 : i;
+        return index;
     }
 }

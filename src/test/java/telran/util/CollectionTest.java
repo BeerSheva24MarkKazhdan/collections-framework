@@ -10,7 +10,7 @@ import java.util.stream.IntStream;
 import org.junit.jupiter.api.Test;
 
 public abstract class CollectionTest {
-    private static final int N_ELEMENTS = 1_000_000;
+    private static final int N_ELEMENTS = 2_000_000;
     protected Collection<Integer> collection;
     Random random = new Random();
     Integer[] array = { 3, -10, 20, 1, 10, 8, 100, 17 };
@@ -18,6 +18,7 @@ public abstract class CollectionTest {
     void setUp() {
         Arrays.stream(array).forEach(collection::add);
     }
+
     @Test
     void removeIfTest() {
         assertTrue(collection.removeIf(n -> n % 2 == 0));
@@ -26,22 +27,22 @@ public abstract class CollectionTest {
     }
 
     @Test
-    void addTest() {
-        assertTrue(collection.add(200));
-        assertTrue(collection.add(17));
-        assertEquals(array.length + 2, collection.size());
-        runTest(new Integer[] { 3, -10, 20, 1, 10, 8, 100, 17, 200, 17 });
-    }
-
-    @Test
     void clearTest() {
         collection.clear();
         assertTrue(collection.isEmpty());
     }
 
-    protected void runTest(Integer[] expected) {
-        assertArrayEquals(expected, collection.stream().toArray(Integer[]::new));
-        assertEquals(expected.length, collection.size());
+    @Test
+    void addNonExistingTest() {
+        assertTrue(collection.add(200));
+
+        runTest(new Integer[] { 3, -10, 20, 1, 10, 8, 100, 17, 200 });
+    }
+
+    @Test
+    void addExistingTest() {
+        assertTrue(collection.add(17));
+        runTest(new Integer[] { 3, -10, 20, 1, 10, 8, 100, 17, 17 });
     }
 
     @Test
@@ -54,15 +55,19 @@ public abstract class CollectionTest {
         Integer[] actual = new Integer[array.length];
         int index = 0;
         Iterator<Integer> it = collection.iterator();
+
         while (it.hasNext()) {
             actual[index++] = it.next();
         }
-        assertArrayEquals(array, actual);
+        Arrays.sort(actual);
+        Integer[] expectedSorted = Arrays.copyOf(array, array.length);
+        Arrays.sort(expectedSorted);
+        assertArrayEquals(expectedSorted, actual);
         assertThrowsExactly(NoSuchElementException.class, it::next);
     }
 
     @Test
-    void removeInIteratorTest(){
+    void removeInIteratorTest() {
         Iterator<Integer> it = collection.iterator();
         assertThrowsExactly(IllegalStateException.class, () -> it.remove());
         Integer n = it.next();
@@ -75,9 +80,19 @@ public abstract class CollectionTest {
 
     }
 
+    protected void runTest(Integer[] expected) {
+        assertArrayEquals(expected, collection.stream().toArray(Integer[]::new));
+        assertEquals(expected.length, collection.size());
+    }
+
+    @Test
+    void streamTest() {
+        runTest(array);
+    }
+
     @Test
     void removeTest() {
-        Integer[] expected = {-10, 20, 1,  8, 100 };
+        Integer[] expected = { -10, 20, 1, 8, 100 };
         assertTrue(collection.remove(10));
         assertTrue(collection.remove(3));
         assertTrue(collection.remove(17));
@@ -87,7 +102,9 @@ public abstract class CollectionTest {
         assertFalse(collection.remove(17));
         clear();
         runTest(new Integer[0]);
+
     }
+
     private void clear() {
         Arrays.stream(array).forEach(n -> collection.remove(n));
     }
@@ -102,39 +119,17 @@ public abstract class CollectionTest {
     @Test
     void containsTest() {
         Arrays.stream(array).forEach(n -> assertTrue(collection.contains(n)));
-        assertTrue(collection.contains(10));
-        assertFalse(collection.contains(1000));
+        assertFalse(collection.contains(10000000));
     }
 
     @Test
-    void streamTest() {
-        setUp();
-
-        Integer[] result = (Integer[]) collection.stream()
-                .filter(n -> n != null && n % 2 == 0)
-                .toArray(Integer[]::new);
-
-        Integer[] expected = { -10, 20, 10, 8, 100 };
-        assertArrayEquals(expected, result);
-        runTest(array);
-    }
-
-    @Test
-    void parallelStreamTest() {
-        setUp();
-        Integer[] result = (Integer[]) collection.parallelStream()
-                .filter(n -> n != null && n % 2 == 0)
-                .toArray(Integer[]::new);
-
-        Integer[] expected = { -10, 20, 10, 8, 100 };
-        assertArrayEquals(expected, result);
-    }
-
-    @Test 
     void performanceTest() {
         collection.clear();
         IntStream.range(0, N_ELEMENTS).forEach(i -> collection.add(random.nextInt()));
+        collection.removeIf(n -> n % 2 == 0);
+        assertTrue(collection.stream().allMatch(n -> n % 2 != 0));
         collection.clear();
-
+        assertTrue(collection.isEmpty());
     }
+
 }

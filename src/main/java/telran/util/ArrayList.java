@@ -115,26 +115,20 @@ public class ArrayList<T> implements List<T> {
 
     @Override
     public boolean removeIf(Predicate<T> predicate) {
-        boolean removed = false;
-        int i = 0;
-        int j = 0;
-
-        while (i < size){
-            @SuppressWarnings("unchecked")
-            T element = (T) array[i];
-            if (!predicate.test(element)){
-                array[j++] = array [i];
-            } else {
-                removed = true;
-            }
-            i++;
+        int indexTo = 0;
+        Predicate<T> negPred = predicate.negate(); //not to apply "!" operator at each iteration
+        for(int currentIndex = 0; currentIndex < size; currentIndex++) {
+         @SuppressWarnings("unchecked")
+        T current = (T)array[currentIndex];
+             if(negPred.test(current)) {
+                 array[indexTo++] = current;
+             }
         }
-       for (int k = j; k < size; k++){
-        array[k] = null;
-       }
-        size = j;
-        return removed;
-    }
+        Arrays.fill(array,indexTo, size, null);
+        boolean res = indexTo < size;
+        size = indexTo;
+        return res;
+     }
 
     private class ArrayListIterator implements Iterator<T> {
         int currentIndex = 0;
