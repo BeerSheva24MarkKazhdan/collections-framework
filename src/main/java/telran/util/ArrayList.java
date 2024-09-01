@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.Predicate;
-
+@SuppressWarnings("unchecked")
 public class ArrayList<T> implements List<T> {
     private static final int DEFAULT_CAPACITY = 16;
     private Object[] array;
@@ -77,7 +77,6 @@ public class ArrayList<T> implements List<T> {
         size++;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public T remove(int index) {
         checkIndex(index, false);
@@ -88,7 +87,6 @@ public class ArrayList<T> implements List<T> {
         return res;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public T get(int index) {
         checkIndex(index, false);
@@ -118,7 +116,6 @@ public class ArrayList<T> implements List<T> {
         int indexTo = 0;
         Predicate<T> negPred = predicate.negate(); //not to apply "!" operator at each iteration
         for(int currentIndex = 0; currentIndex < size; currentIndex++) {
-         @SuppressWarnings("unchecked")
         T current = (T)array[currentIndex];
              if(negPred.test(current)) {
                  array[indexTo++] = current;
@@ -136,16 +133,15 @@ public class ArrayList<T> implements List<T> {
 
         @Override
         public boolean hasNext() {
-            flNext = true;
             return currentIndex < size;
         }
 
-        @SuppressWarnings("unchecked")
         @Override
         public T next() {
             if (!hasNext()) {
                 throw new NoSuchElementException();
             }
+            flNext = true;
             return (T) array[currentIndex++];
         }
 
