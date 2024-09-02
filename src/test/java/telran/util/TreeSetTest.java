@@ -14,6 +14,7 @@ public class TreeSetTest extends SetTest{
         collection = new TreeSet<>();
         super.setUp();
     }
+    
     @Override
     protected void runTest(Integer[] expected) {
         Integer[] expectedSorted = Arrays.copyOf(expected, expected.length);

@@ -118,28 +118,26 @@ public class TreeSet<T> implements Set<T> {
             return false;
         }
         
-        
-        if (nodeToRemove.left==null && nodeToRemove.right==null){
+        if (nodeToRemove.left == null && nodeToRemove.right == null) {
             replaceNode(nodeToRemove, null);
-        }
-        
+        } 
         else if (nodeToRemove.left != null && nodeToRemove.right == null) {
             replaceNode(nodeToRemove, nodeToRemove.left);
         } 
-        
         else if (nodeToRemove.left == null && nodeToRemove.right != null) {
             replaceNode(nodeToRemove, nodeToRemove.right);
+        } 
+        else {
+            Node<T> maxLeftNode = findMax(nodeToRemove.left);
+            nodeToRemove.obj = maxLeftNode.obj;
+            replaceNode(maxLeftNode, maxLeftNode.left);
         }
         
-        else {
-            Node<T> maxLeftNode = findMax(nodeToRemove.right);
-            nodeToRemove.obj = maxLeftNode.obj;
-            replaceNode(maxLeftNode, maxLeftNode.right);
-            
-        }
         size--;
-        return  true;
+    
+        return true;
     }
+    
 
     private Node<T> findMax(Node<T> node) {
         while (node != null && node.right != null) {
@@ -160,6 +158,10 @@ public class TreeSet<T> implements Set<T> {
         if (newNode != null) {
             newNode.parent = node.parent;
         }
+
+        node.left = null;
+        node.right = null;
+        node.parent = null;
     }
 
 
@@ -170,7 +172,7 @@ public class TreeSet<T> implements Set<T> {
 
     @Override
     public boolean isEmpty() {
-        return size == 0 ? true : false;
+        return size == 0;
     }
 
     @Override
