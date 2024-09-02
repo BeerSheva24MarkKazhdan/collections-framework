@@ -132,13 +132,20 @@ public class TreeSet<T> implements Set<T> {
         }
         
         else {
-            Node<T> minLeftNode = findMin(nodeToRemove.right);
-            nodeToRemove.obj = minLeftNode.obj;
-            replaceNode(minLeftNode, minLeftNode.right);
+            Node<T> maxLeftNode = findMax(nodeToRemove.right);
+            nodeToRemove.obj = maxLeftNode.obj;
+            replaceNode(maxLeftNode, maxLeftNode.right);
             
         }
         size--;
         return  true;
+    }
+
+    private Node<T> findMax(Node<T> node) {
+        while (node != null && node.right != null) {
+            node = node.right;
+        }
+        return node;
     }
 
     private void replaceNode(Node<T> node, Node<T> newNode) {
@@ -168,14 +175,7 @@ public class TreeSet<T> implements Set<T> {
 
     @Override
     public boolean contains(T pattern) {
-        boolean res = false;
-        Iterator<T> iterator = iterator();
-        while(iterator.hasNext() && !res){
-            if(pattern.equals(iterator.next())){
-                res = true;
-            }
-        }
-        return res;
+        return getNode(pattern) != null;
     }
 
     @Override
