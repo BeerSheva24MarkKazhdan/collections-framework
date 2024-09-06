@@ -7,14 +7,13 @@ import java.util.Arrays;
 
 import org.junit.jupiter.api.BeforeEach;
 
-public class TreeSetTest extends SetTest{
- @BeforeEach
+public class TreeSetTest extends SortedSetTest{
+    @BeforeEach
     @Override
     void setUp() {
         collection = new TreeSet<>();
         super.setUp();
     }
-    
     @Override
     protected void runTest(Integer[] expected) {
         Integer[] expectedSorted = Arrays.copyOf(expected, expected.length);

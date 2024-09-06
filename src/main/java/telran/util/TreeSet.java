@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 @SuppressWarnings("unchecked")
 
-public class TreeSet<T> implements Set<T> {
+public class TreeSet<T>  implements SortedSet<T> {
     private static class Node<T> {
         T obj;
         Node<T> parent;
@@ -217,4 +217,73 @@ private Node<T> getNextCurrent(Node<T> current) {
 		node.parent = node.left = node.right = null;
 		
 	}
+
+    @Override
+    public T first() {
+        if (isEmpty()) {
+            throw new NoSuchElementException();
+        }
+        return getLeastFrom(root).obj;
+    }
+
+    @Override
+    public T last() {
+        if (isEmpty()) {
+            throw new NoSuchElementException();
+        }
+        return getGreatestFrom(root).obj;
+    }
+
+    @Override
+    public T floor(T key) {
+        Node<T> current = root;
+    Node<T> floorNode = null;
+
+    while (current != null) {
+        int cmp = comparator.compare(key, current.obj);
+        if (cmp == 0) {
+            return current.obj;
+        } else if (cmp > 0) {
+            floorNode = current;
+            current = current.right;
+        } else {
+            current = current.left;
+        }
+    }
+
+    return (floorNode == null) ? null : floorNode.obj;
+}
+
+    @Override
+    public T ceiling(T key) {
+        Node<T> current = root;
+    Node<T> ceilingNode = null;
+
+    while (current != null) {
+        int cmp = comparator.compare(key, current.obj);
+        if (cmp == 0) {
+            return current.obj;
+        } else if (cmp < 0) {
+            ceilingNode = current; 
+            current = current.left;
+        } else {
+            current = current.right;
+        }
+    }
+
+    return (ceilingNode == null) ? null : ceilingNode.obj;
+}
+
+    @Override
+    public SortedSet<T> subSet(T keyFrom, T keyTo) {
+        TreeSet<T> subSet = new TreeSet<>(comparator);
+        Iterator<T> it = iterator();
+        while (it.hasNext()) {
+            T current = it.next();
+            if (comparator.compare(current, keyFrom) >= 0 && comparator.compare(current, keyTo) < 0) {
+                subSet.add(current);
+            }
+        }
+        return subSet;
+    }
 }
