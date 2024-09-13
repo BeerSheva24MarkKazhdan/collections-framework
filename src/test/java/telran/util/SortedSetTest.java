@@ -1,8 +1,12 @@
 package telran.util;
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.NoSuchElementException;
+
 import org.junit.jupiter.api.Test;
-public class SortedSetTest extends SetTest {
+
+
+public abstract class SortedSetTest extends SetTest {
     SortedSet<Integer> sortedSet;
 
     @Override
@@ -31,6 +35,9 @@ public class SortedSetTest extends SetTest {
     @Test
     void firstTest() {
         assertEquals(-10, sortedSet.first());
+        sortedSet.clear();
+        assertThrowsExactly(NoSuchElementException.class,
+        () -> sortedSet.first());
     }
 
     @Test
@@ -41,8 +48,20 @@ public class SortedSetTest extends SetTest {
     @Test
     void subSetTest() {
         Integer[] expected = { 10, 17 };
-        Integer[] actual = sortedSet.subSet(10, 20).stream().toArray(Integer[]::new);
+        Integer[] actual = getActualSubSet(10, 20);
         assertArrayEquals(expected, actual);
+        actual = getActualSubSet(9, 18);
+        assertArrayEquals(expected, actual);
+        actual = getActualSubSet(100, 100);
+        assertEquals(0, actual.length);
+        assertThrowsExactly(IllegalArgumentException.class,
+         ()->sortedSet.subSet(10, 5));
+       
+
+    }
+
+    private Integer[] getActualSubSet(int keyFrom, int keyTo) {
+        return sortedSet.subSet(keyFrom, keyTo).stream().toArray(Integer[]::new);
     }
 
 }

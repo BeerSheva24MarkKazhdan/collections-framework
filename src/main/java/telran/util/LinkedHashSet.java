@@ -1,7 +1,6 @@
 package telran.util;
 import java.util.Iterator;
 import telran.util.LinkedList.Node;
-import java.util.NoSuchElementException;
 
 public class LinkedHashSet<T> implements Set<T> {
     private LinkedList<T> list = new LinkedList<>();
@@ -15,6 +14,7 @@ public class LinkedHashSet<T> implements Set<T> {
             list.addNode(node, list.size());
             map.put(obj, node);
             res = true;
+
         }
 
         return res;
@@ -23,15 +23,14 @@ public class LinkedHashSet<T> implements Set<T> {
     @Override
     public boolean remove(T pattern) {
         boolean res = false;
-        Node<T> node = map.get(pattern);
-    if (node == null) {
-        res = false;
-    } else {
-        list.removeNode(node);
-        map.remove(pattern);  
+        Node<T> toBeRemovedNode = map.remove(pattern);
+        if (toBeRemovedNode != null) {
+            res = true;
+            list.removeNode(toBeRemovedNode);
+        }
+        return res;
+
     }
-    return res;
-}  
 
     @Override
     public int size() {
@@ -40,38 +39,46 @@ public class LinkedHashSet<T> implements Set<T> {
 
     @Override
     public boolean isEmpty() {
-        return size()==0;
+       return list.size() == 0;
     }
 
     @Override
     public boolean contains(T pattern) {
-        return map.containsKey(pattern);
+       return map.containsKey(pattern);
     }
 
     @Override
     public Iterator<T> iterator() {
-        return new Iterator<>() {
-
-            private Iterator<T> listIterator = list.iterator();
-    
-            @Override
-            public boolean hasNext() {
-                return listIterator.hasNext();
-            }
-    
-            @Override
-            public T next() {
-                return listIterator.next(); 
-            }
-        };
+       return new LinkedHashSetIterator();
     }
 
     @Override
     public T get(Object pattern) {
+        T res = null;
         Node<T> node = map.get(pattern);
-    if (node == null) {
-        return null; 
+        if (node != null) {
+            res = node.obj;
+        }
+        return res;
     }
-    return node.obj; 
-}
+    private class LinkedHashSetIterator implements Iterator<T> {
+        Iterator<T> iterator = list.iterator();
+        T lastIteratedObj = null;
+        @Override
+        public boolean hasNext() {
+            return iterator.hasNext();
+        }
+
+        @Override
+        public T next() {
+            lastIteratedObj = iterator.next();
+            return lastIteratedObj;
+        }
+        @Override
+        public void remove(){
+            iterator.remove();
+            map.remove(lastIteratedObj);
+        }
+    }
+
 }
